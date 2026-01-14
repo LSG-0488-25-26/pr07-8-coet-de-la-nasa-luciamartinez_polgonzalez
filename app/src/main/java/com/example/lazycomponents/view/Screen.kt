@@ -57,3 +57,26 @@ fun PantallaLlistaGats(viewModel: GatViewModel, alNavegarDetalle: (String) -> Un
         }
     }
 }
+
+@Composable
+fun PantallaDetallsGat(viewModel: GatViewModel, gatoId: String, alVolver: () -> Unit) {
+    val gat = viewModel.obtenerGato(gatoId)
+
+    if (gat != null) {
+        Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+            Button(onClick = alVolver) { Text("Volver") }
+            Spacer(modifier = Modifier.height(16.dp))
+            AsyncImage(
+                model = gat.urlImagen,
+                contentDescription = null,
+                modifier = Modifier.fillMaxWidth().height(250.dp).clip(RoundedCornerShape(16.dp)),
+                contentScale = ContentScale.Crop
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(text = gat.nombre, fontSize = 30.sp)
+            Text(text = gat.descripcion, fontSize = 18.sp)
+        }
+    } else {
+        Text("Gato no encontrado", modifier = Modifier.padding(16.dp))
+    }
+}
