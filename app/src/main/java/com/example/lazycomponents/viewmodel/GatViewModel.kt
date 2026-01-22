@@ -13,6 +13,17 @@ class GatViewModel : ViewModel() {
         cargarGatos()
     }
 
+    /*
+    data class LetrasRespuesta(
+        val movies: List<Letras>
+    )
+
+    data class Letras(
+        val artist: String,
+        val title: String
+    )
+     */
+    
     private fun cargarGatos() {
         _llistaGats.value = listOf(
             Gat("1", "Michi Táctico", listOf("serio", "militar"), "https://cataas.com/cat?v=1", "Listo para la batalla."),
