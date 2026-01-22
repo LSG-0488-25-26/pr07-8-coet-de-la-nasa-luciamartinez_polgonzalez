@@ -22,6 +22,7 @@ import com.example.lazycomponents.ui.theme.LazyComponentsTheme
 import com.example.lazycomponents.view.PantallaDetallsGat
 import com.example.lazycomponents.view.PantallaLlistaGats
 import com.example.lazycomponents.viewmodel.GatViewModel
+import retrofit2.Retrofit
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -63,4 +64,11 @@ fun NavegacionApp(viewModel: GatViewModel) {
             )
         }
     }
+}
+
+private fun getRetrofit(): Retrofit {
+    return Retrofit.Builder()
+        .baseUrl("https://api.samplemovieapi.com/")
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
 }
