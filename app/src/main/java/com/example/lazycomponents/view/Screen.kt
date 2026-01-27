@@ -14,10 +14,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.lazycomponents.viewmodel.KaraokeViewModel
+import coil.compose.AsyncImage
 
 @Composable
 fun KaraokeScreen(viewModel: KaraokeViewModel) {
     val lyrics by viewModel.lyrics.observeAsState("")
+    val coverUrl by viewModel.coverUrl.observeAsState(null)
     val isLoading by viewModel.isLoading.observeAsState(false)
 
     var artist by remember { mutableStateOf("") }
@@ -74,7 +76,7 @@ fun KaraokeScreen(viewModel: KaraokeViewModel) {
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("Buscando...")
             } else {
-                Text("🔍 Buscar Letra")
+                Text("Buscar Letra")
             }
         }
 
@@ -83,6 +85,18 @@ fun KaraokeScreen(viewModel: KaraokeViewModel) {
         Divider()
 
         Spacer(modifier = Modifier.height(16.dp))
+
+        if (coverUrl != null) {
+            AsyncImage(
+                model = coverUrl,
+                contentDescription = "Carátula del álbum",
+                modifier = Modifier
+                    .size(200.dp)
+                    .padding(8.dp)
+            )
+        } else {
+            Spacer(modifier = Modifier.height(16.dp))
+        }
 
         Box(
             modifier = Modifier
