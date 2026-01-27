@@ -7,5 +7,6 @@ data class ItunesResponse(
 )
 
 data class ItunesResult(
-    @SerializedName("artworkUrl100") val artworkUrl: String? // La URL de la foto
+    @SerializedName("artworkUrl100") val artworkUrl: String?,
+    @SerializedName("previewUrl") val previewUrl: String?
 )
