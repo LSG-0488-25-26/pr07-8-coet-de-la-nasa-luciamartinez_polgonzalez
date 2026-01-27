@@ -6,6 +6,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.*
@@ -28,6 +30,7 @@ fun KaraokeScreen(viewModel: KaraokeViewModel) {
     val coverUrl by viewModel.coverUrl.observeAsState(null)
     val audioUrl by viewModel.audioUrl.observeAsState(null)
     val isLoading by viewModel.isLoading.observeAsState(false)
+    val isFavorite by viewModel.isFavorite.observeAsState(false)
 
     var artist by remember { mutableStateOf("") }
     var title by remember { mutableStateOf("") }
@@ -48,7 +51,6 @@ fun KaraokeScreen(viewModel: KaraokeViewModel) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Entradas de texto
         OutlinedTextField(
             value = artist,
             onValueChange = { artist = it },
@@ -67,42 +69,79 @@ fun KaraokeScreen(viewModel: KaraokeViewModel) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Button(
-            onClick = { viewModel.searchLyrics(artist, title) },
-            enabled = !isLoading && artist.isNotBlank() && title.isNotBlank(),
-            modifier = Modifier.fillMaxWidth()
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(if (isLoading) "Buscando..." else "Buscar")
+            Button(
+                onClick = { viewModel.searchLyrics(artist, title) },
+                enabled = !isLoading && artist.isNotBlank() && title.isNotBlank(),
+                modifier = Modifier.weight(1f)
+            ) {
+                if (isLoading) {
+                    CircularProgressIndicator(modifier = Modifier.size(20.dp), color = Color.White)
+                } else {
+                    Text("Buscar")
+                }
+            }
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            Button(
+                onClick = { viewModel.toggleFavorite() },
+                enabled = !isLoading && lyrics.isNotEmpty() && !lyrics.startsWith("Busca"),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (isFavorite) Color(0xFFE91E63) else Color.Gray
+                )
+            ) {
+                Icon(
+                    imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                    contentDescription = "Favorito",
+                    tint = Color.White
+                )
+            }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            // Foto
-            if (coverUrl != null) {
-                AsyncImage(
-                    model = coverUrl,
-                    contentDescription = "Carátula",
-                    modifier = Modifier.size(100.dp)
-                )
-            }
+        if (coverUrl != null || audioUrl != null) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.surfaceVariant, shape = CircleShape)
+                    .padding(10.dp)
+            ) {
+                if (coverUrl != null) {
+                    AsyncImage(
+                        model = coverUrl,
+                        contentDescription = null,
+                        modifier = Modifier.size(80.dp)
+                    )
+                }
 
-            if (audioUrl != null) {
-                Spacer(modifier = Modifier.width(16.dp))
-                SimpleAudioPlayer(url = audioUrl!!) // Llamada a la función de abajo
+                if (audioUrl != null) {
+                    Spacer(modifier = Modifier.width(16.dp))
+                    SimpleAudioPlayer(url = audioUrl!!)
+                }
             }
+            Spacer(modifier = Modifier.height(16.dp))
         }
 
-        Divider(modifier = Modifier.padding(vertical = 16.dp))
+        Divider()
 
-        Box(modifier = Modifier.fillMaxSize().verticalScroll(scrollState)) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(top = 16.dp)
+                .verticalScroll(scrollState)
+        ) {
             Text(
                 text = lyrics,
                 textAlign = TextAlign.Center,
+                fontSize = 18.sp,
+                lineHeight = 28.sp,
                 modifier = Modifier.fillMaxWidth()
             )
         }
@@ -136,10 +175,7 @@ fun SimpleAudioPlayer(url: String) {
 
     LaunchedEffect(url) {
         try {
-            if (isPlaying) {
-                mediaPlayer.stop()
-                isPlaying = false
-            }
+            if (isPlaying) { mediaPlayer.stop(); isPlaying = false }
             mediaPlayer.reset()
             mediaPlayer.setDataSource(url)
             mediaPlayer.prepareAsync()
@@ -149,21 +185,23 @@ fun SimpleAudioPlayer(url: String) {
 
     IconButton(
         onClick = {
-            if (isPlaying) {
-                mediaPlayer.pause()
-            } else {
-                mediaPlayer.start()
-            }
-            isPlaying = !isPlaying
+            try {
+                if (isPlaying) {
+                    mediaPlayer.pause()
+                } else {
+                    mediaPlayer.start()
+                }
+                isPlaying = !isPlaying
+            } catch (e: Exception) { e.printStackTrace() }
         },
         modifier = Modifier
-            .size(48.dp)
-            .background(MaterialTheme.colorScheme.primaryContainer, CircleShape)
+            .size(50.dp)
+            .background(MaterialTheme.colorScheme.primary, CircleShape)
     ) {
         Icon(
             imageVector = if (isPlaying) Icons.Filled.Pause else Icons.Filled.PlayArrow,
-            contentDescription = "Play/Pause",
-            tint = MaterialTheme.colorScheme.onPrimaryContainer
+            contentDescription = "Play",
+            tint = Color.White
         )
     }
 }
