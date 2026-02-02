@@ -48,6 +48,19 @@ class KaraokeViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
+    fun getAllSongs(): LiveData<List<Song>> = dao.getAllSongs()
+
+    fun deleteSong(song: Song) {
+        viewModelScope.launch(Dispatchers.IO) {
+            dao.deleteSong(song)
+            if (song.artist == currentArtist && song.title == currentTitle) {
+                withContext(Dispatchers.Main) {
+                    _isFavorite.value = false
+                }
+            }
+        }
+    }
+
     fun onSearchTextChange(text: String){
         _searchText.value = text
     }

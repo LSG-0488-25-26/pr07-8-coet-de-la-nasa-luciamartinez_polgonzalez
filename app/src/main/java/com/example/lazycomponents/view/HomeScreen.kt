@@ -3,6 +3,9 @@ package com.example.lazycomponents.view
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
@@ -26,7 +29,7 @@ import coil.compose.AsyncImage
 import com.example.lazycomponents.viewmodel.KaraokeViewModel
 
 @Composable
-fun KaraokeScreen(viewModel: KaraokeViewModel) {
+fun HomeScreen(viewModel: KaraokeViewModel) {
     val lyrics by viewModel.lyrics.observeAsState("")
     val topSongs by viewModel.topSongs.observeAsState(emptyList())
     val isSearching = !lyrics.startsWith("Busca") && !lyrics.startsWith("Error")
@@ -34,6 +37,7 @@ fun KaraokeScreen(viewModel: KaraokeViewModel) {
     val audioUrl by viewModel.audioUrl.observeAsState(null)
     val isLoading by viewModel.isLoading.observeAsState(false)
     val isFavorite by viewModel.isFavorite.observeAsState(false)
+    val showPlayer = !lyrics.startsWith("Busca") && !lyrics.startsWith("Error") && !lyrics.startsWith("No se encontró")
 
     var artist by remember { mutableStateOf("") }
     var title by remember { mutableStateOf("") }
@@ -106,47 +110,52 @@ fun KaraokeScreen(viewModel: KaraokeViewModel) {
         }
 
         Spacer(modifier = Modifier.height(16.dp))
+        Divider()
+        Spacer(modifier = Modifier.height(16.dp))
 
-        if (coverUrl != null || audioUrl != null) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.surfaceVariant, shape = CircleShape)
-                    .padding(10.dp)
-            ) {
-                if (coverUrl != null) {
-                    AsyncImage(
-                        model = coverUrl,
-                        contentDescription = null,
-                        modifier = Modifier.size(80.dp)
-                    )
+        if (showPlayer) {
+            if (coverUrl != null || audioUrl != null) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(MaterialTheme.colorScheme.surfaceVariant, shape = CircleShape)
+                        .padding(10.dp)
+                ) {
+                    if (coverUrl != null) {
+                        AsyncImage(
+                            model = coverUrl,
+                            contentDescription = null,
+                            modifier = Modifier.size(80.dp)
+                        )
+                    }
+
+                    if (audioUrl != null) {
+                        Spacer(modifier = Modifier.width(16.dp))
+                        SimpleAudioPlayer(url = audioUrl!!)
+                    }
                 }
+                Spacer(modifier = Modifier.height(16.dp))
+            }
 
-                if (audioUrl != null) {
-                    Spacer(modifier = Modifier.width(16.dp))
-                    SimpleAudioPlayer(url = audioUrl!!)
+            Box(modifier = Modifier.fillMaxSize().verticalScroll(scrollState)) {
+                Text(text = lyrics, textAlign = TextAlign.Center, fontSize = 18.sp, lineHeight = 28.sp, modifier = Modifier.fillMaxWidth())
+            }
+        } else {
+            Text("Top 10 hits en ITunes", style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold)
+            Spacer(modifier = Modifier.height(12.dp))
+
+            LazyColumn (verticalArrangement = Arrangement.spacedBy(8.dp)){
+                items(topSongs) { song ->
+                    TopSongItem(song) { 
+                        artist = song.artistName ?: ""
+                        title = song.trackName ?: ""
+                        viewModel.searchLyrics(artist, title)
+                    }
                 }
             }
-            Spacer(modifier = Modifier.height(16.dp))
-        }
-
-        Divider()
-
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(top = 16.dp)
-                .verticalScroll(scrollState)
-        ) {
-            Text(
-                text = lyrics,
-                textAlign = TextAlign.Center,
-                fontSize = 18.sp,
-                lineHeight = 28.sp,
-                modifier = Modifier.fillMaxWidth()
-            )
         }
     }
 }

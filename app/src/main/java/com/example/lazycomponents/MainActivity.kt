@@ -4,8 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import com.example.lazycomponents.ui.theme.LazyComponentsTheme
-import com.example.lazycomponents.view.KaraokeScreen
+import com.example.lazycomponents.view.AppNavigation
 import com.example.lazycomponents.viewmodel.KaraokeViewModel
 
 class MainActivity : ComponentActivity() {
@@ -15,9 +14,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            LazyComponentsTheme {
-            KaraokeScreen(viewModel = viewModel)
-            }
+            AppNavigation(viewModel = viewModel)
         }
     }
 }
