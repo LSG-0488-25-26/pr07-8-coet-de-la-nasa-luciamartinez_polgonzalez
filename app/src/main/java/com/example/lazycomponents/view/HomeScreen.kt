@@ -1,6 +1,7 @@
 package com.example.lazycomponents.view
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -27,6 +28,8 @@ import com.example.lazycomponents.viewmodel.KaraokeViewModel
 @Composable
 fun KaraokeScreen(viewModel: KaraokeViewModel) {
     val lyrics by viewModel.lyrics.observeAsState("")
+    val topSongs by viewModel.topSongs.observeAsState(emptyList())
+    val isSearching = !lyrics.startsWith("Busca") && !lyrics.startsWith("Error")
     val coverUrl by viewModel.coverUrl.observeAsState(null)
     val audioUrl by viewModel.audioUrl.observeAsState(null)
     val isLoading by viewModel.isLoading.observeAsState(false)
@@ -203,5 +206,20 @@ fun SimpleAudioPlayer(url: String) {
             contentDescription = "Play",
             tint = Color.White
         )
+    }
+}
+
+@Composable
+fun TopSongItem(song: com.example.lazycomponents.model.ItunesResult, onClick: () -> Unit) {
+    Card(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp).clickable{ onClick() },
+        elevation = CardDefaults.cardElevation(2.dp)){
+        Row(modifier = Modifier.padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
+            AsyncImage(model = song.artworkUrl, contentDescription = null, modifier = Modifier.size(50.dp))
+            Spacer(modifier = Modifier.width(16.dp))
+            Column {
+                Text(song.trackName ?: "Desconocido", fontWeight = FontWeight.Bold)
+                Text(song.artistName ?: "Desconocido", style = MaterialTheme.typography.bodySmall)
+            }
+        }
     }
 }

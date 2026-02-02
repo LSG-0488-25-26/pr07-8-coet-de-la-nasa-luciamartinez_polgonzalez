@@ -8,5 +8,7 @@ data class ItunesResponse(
 
 data class ItunesResult(
     @SerializedName("artworkUrl100") val artworkUrl: String?,
-    @SerializedName("previewUrl") val previewUrl: String?
+    @SerializedName("previewUrl") val previewUrl: String?,
+    @SerializedName("trackName") val trackName: String?,
+    @SerializedName("artistName") val artistName: String?
 )

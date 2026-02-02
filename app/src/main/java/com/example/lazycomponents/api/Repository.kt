@@ -9,7 +9,7 @@ data class MusicData(val coverUrl: String?, val audioUrl: String?)
 
 class Repository {
     private val lyricsApi = LyricsApi.create()
-    private val itunesApi = ItunesApi.create()
+    val itunesApi = ItunesApi.create()
 
     suspend fun getLyrics(artist: String, title: String): Response<LyricsResponse> {
         return lyricsApi.getLyrics(artist, title)

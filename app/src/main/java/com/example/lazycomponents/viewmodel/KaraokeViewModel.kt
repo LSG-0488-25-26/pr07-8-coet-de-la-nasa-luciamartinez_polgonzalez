@@ -8,10 +8,13 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.lazycomponents.api.Repository
 import com.example.lazycomponents.local.KaraokeDatabase
+import com.example.lazycomponents.model.ItunesResponse
+import com.example.lazycomponents.model.ItunesResult
 import com.example.lazycomponents.model.Song
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import okhttp3.Dispatcher
 
 class KaraokeViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -19,6 +22,35 @@ class KaraokeViewModel(application: Application) : AndroidViewModel(application)
 
     private val database = KaraokeDatabase.getDatabase(application)
     private val dao = database.songsDao()
+
+    private val _topSongs = MutableLiveData<List<ItunesResult>>(emptyList())
+    val topSongs: LiveData<List<ItunesResult>> = _topSongs
+
+    private val _searchText = MutableLiveData<String>("")
+    val searchText: LiveData<String> = _searchText
+
+    init {
+        loadTop10()
+    }
+
+    private fun loadTop10() {
+        viewModelScope.launch (Dispatchers.IO) {
+            try{
+                val response = repository.itunesApi.searchMusic(term = "hits", limit = 10)
+                if (response.isSuccessful) {
+                    withContext(Dispatchers.Main) {
+                        _topSongs.value = response.body()?.results ?: emptyList()
+                    }
+                }
+            } catch (e: Exception) {
+
+            }
+        }
+    }
+
+    fun onSearchTextChange(text: String){
+        _searchText.value = text
+    }
 
     private val _lyrics = MutableLiveData<String>("Busca una canción...")
     val lyrics: LiveData<String> = _lyrics

@@ -13,7 +13,8 @@ interface ItunesApi {
     suspend fun searchMusic(
         @Query("term") term: String,
         @Query("media") media: String = "music",
-        @Query("limit") limit: Int = 1
+        @Query("limit") limit: Int = 1,
+        @Query("entity") entity: String = "song"
     ): Response<ItunesResponse>
 
     companion object {
