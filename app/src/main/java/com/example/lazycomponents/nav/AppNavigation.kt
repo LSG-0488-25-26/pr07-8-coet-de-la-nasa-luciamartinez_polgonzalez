@@ -1,4 +1,4 @@
-package com.example.lazycomponents.view
+package com.example.lazycomponents.nav
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -12,6 +12,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.lazycomponents.view.FavoritesScreen
+import com.example.lazycomponents.view.HomeScreen
 import com.example.lazycomponents.viewmodel.KaraokeViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -49,7 +51,7 @@ fun AppNavigation(viewModel: KaraokeViewModel) {
                 HomeScreen(viewModel)
             }
             composable("favorites") {
-                FavoritesScreen(viewModel){
+                FavoritesScreen(viewModel) {
                     navController.navigate("home") {
                         popUpTo("home") { inclusive = true }
                     }

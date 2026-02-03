@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import com.example.lazycomponents.view.AppNavigation
+import com.example.lazycomponents.nav.AppNavigation
 import com.example.lazycomponents.viewmodel.KaraokeViewModel
 
 class MainActivity : ComponentActivity() {
