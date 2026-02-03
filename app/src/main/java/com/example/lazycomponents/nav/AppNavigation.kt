@@ -16,6 +16,12 @@ import com.example.lazycomponents.view.FavoritesScreen
 import com.example.lazycomponents.view.HomeScreen
 import com.example.lazycomponents.viewmodel.KaraokeViewModel
 
+// Fijar rutas para evitar líos
+private object Routes {
+    const val HOME = "home"
+    const val FAVORITES = "favorites"
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppNavigation(viewModel: KaraokeViewModel) {
@@ -30,30 +36,38 @@ fun AppNavigation(viewModel: KaraokeViewModel) {
                 NavigationBarItem(
                     icon = { Icon(Icons.Default.Home, contentDescription = "Inicio") },
                     label = { Text("Inicio") },
-                    selected = currentRoute == "home",
-                    onClick = { navController.navigate("home") }
+                    selected = currentRoute == Routes.HOME,
+                    onClick = {
+                        navController.navigate(Routes.HOME) {
+                            launchSingleTop = true
+                        }
+                    }
                 )
                 NavigationBarItem(
                     icon = { Icon(Icons.Default.Star, contentDescription = "Favoritos") },
                     label = { Text("Favoritos") },
-                    selected = currentRoute == "favorites",
-                    onClick = { navController.navigate("favorites") }
+                    selected = currentRoute == Routes.FAVORITES,
+                    onClick = {
+                        navController.navigate(Routes.FAVORITES) {
+                            launchSingleTop = true
+                        }
+                    }
                 )
             }
         }
     ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = "home",
+            startDestination = Routes.HOME,
             modifier = Modifier.padding(innerPadding)
         ) {
-            composable("home") {
+            composable(Routes.HOME) {
                 HomeScreen(viewModel)
             }
-            composable("favorites") {
+            composable(Routes.FAVORITES) {
                 FavoritesScreen(viewModel) {
-                    navController.navigate("home") {
-                        popUpTo("home") { inclusive = true }
+                    navController.navigate(Routes.HOME) {
+                        launchSingleTop = true
                     }
                 }
             }
