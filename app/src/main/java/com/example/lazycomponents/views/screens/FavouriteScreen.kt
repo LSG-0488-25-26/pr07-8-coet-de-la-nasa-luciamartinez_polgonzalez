@@ -1,4 +1,4 @@
-package com.example.lazycomponents.view
+package com.example.lazycomponents.views.screens
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -16,7 +16,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import com.example.lazycomponents.model.Song
 import com.example.lazycomponents.viewmodel.KaraokeViewModel
 
 @Composable

@@ -1,5 +1,7 @@
-package com.example.lazycomponents.view
+package com.example.lazycomponents.views.screens
 
+import android.media.AudioAttributes
+import android.media.MediaPlayer
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -26,6 +28,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.example.lazycomponents.model.ItunesResult
 import com.example.lazycomponents.viewmodel.KaraokeViewModel
 
 @Composable
@@ -166,11 +169,11 @@ fun SimpleAudioPlayer(url: String) {
     var isPlaying by remember { mutableStateOf(false) }
 
     val mediaPlayer = remember {
-        android.media.MediaPlayer().apply {
+        MediaPlayer().apply {
             setAudioAttributes(
-                android.media.AudioAttributes.Builder()
-                    .setContentType(android.media.AudioAttributes.CONTENT_TYPE_MUSIC)
-                    .setUsage(android.media.AudioAttributes.USAGE_MEDIA)
+                AudioAttributes.Builder()
+                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                    .setUsage(AudioAttributes.USAGE_MEDIA)
                     .build()
             )
         }
@@ -219,7 +222,7 @@ fun SimpleAudioPlayer(url: String) {
 }
 
 @Composable
-fun TopSongItem(song: com.example.lazycomponents.model.ItunesResult, onClick: () -> Unit) {
+fun TopSongItem(song: ItunesResult, onClick: () -> Unit) {
     Card(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp).clickable{ onClick() },
         elevation = CardDefaults.cardElevation(2.dp)){
         Row(modifier = Modifier.padding(8.dp), verticalAlignment = Alignment.CenterVertically) {

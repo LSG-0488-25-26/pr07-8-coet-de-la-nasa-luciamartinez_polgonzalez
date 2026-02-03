@@ -12,8 +12,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.lazycomponents.view.FavoritesScreen
-import com.example.lazycomponents.view.HomeScreen
+import com.example.lazycomponents.views.screens.FavoritesScreen
+import com.example.lazycomponents.views.screens.HomeScreen
 import com.example.lazycomponents.viewmodel.KaraokeViewModel
 
 // Fijar rutas para evitar líos
