@@ -1,4 +1,4 @@
-package com.example.lazycomponents.views.screens
+package com.example.lazycomponents.views
 
 import android.media.AudioAttributes
 import android.media.MediaPlayer

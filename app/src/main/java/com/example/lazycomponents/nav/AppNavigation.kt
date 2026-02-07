@@ -23,8 +23,8 @@ import com.example.lazycomponents.utils.getAdaptativeFontSize
 import com.example.lazycomponents.utils.getAdaptativePadding
 import com.example.lazycomponents.utils.getScreenInfo
 import com.example.lazycomponents.utils.getScreenSize
-import com.example.lazycomponents.views.screens.FavoritesScreen
-import com.example.lazycomponents.views.screens.HomeScreen
+import com.example.lazycomponents.views.FavoritesScreen
+import com.example.lazycomponents.views.HomeScreen
 import com.example.lazycomponents.viewmodel.KaraokeViewModel
 
 // Rutas para evitar líos
