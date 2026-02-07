@@ -1,10 +1,9 @@
 package com.example.lazycomponents.api
 
 import com.example.lazycomponents.model.LyricsResponse
-import com.example.lazycomponents.model.ItunesResponse
 import retrofit2.Response
 
-// 1. Definimos esta clase AQUÍ, fuera de la clase Repository
+// Definimos esta clase AQUÍ, fuera de la clase Repository
 data class MusicData(val coverUrl: String?, val audioUrl: String?)
 
 class Repository {
