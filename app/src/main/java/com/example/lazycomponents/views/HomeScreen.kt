@@ -63,8 +63,8 @@ fun HomeScreen(
         Row(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(screenPadding),
-            horizontalArrangement = Arrangement.spacedBy(screenPadding)
+                .padding(bottom = 25.dp),
+            horizontalArrangement = Arrangement.spacedBy(screenPadding / 2)
         ) {
             // Buscar 40%
             Column(
@@ -172,7 +172,8 @@ fun HomeScreen(
         Row(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(screenPadding)
+                .padding(bottom = 25.dp),
+            horizontalArrangement = Arrangement.spacedBy(screenPadding / 2)
         ) {
             // Columna izquierda: Búsqueda y Top 10
             Column(

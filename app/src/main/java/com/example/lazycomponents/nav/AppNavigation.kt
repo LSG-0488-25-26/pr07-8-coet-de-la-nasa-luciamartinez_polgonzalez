@@ -30,6 +30,7 @@ import com.example.lazycomponents.utils.getScreenSize
 import com.example.lazycomponents.views.FavoritesScreen
 import com.example.lazycomponents.views.HomeScreen
 import com.example.lazycomponents.viewmodel.KaraokeViewModel
+import androidx.compose.ui.unit.LayoutDirection
 
 // Rutas para evitar líos
 private object Routes {
@@ -144,11 +145,12 @@ fun MobileLandscapeLayout(
     navController: NavHostController,
     padding: Dp
 ) {
+    val bottomBarHeight = 56.dp
     Scaffold(
         bottomBar = {
             // BottomBar personalizada
             Surface(
-                modifier = Modifier.height(56.dp),
+                modifier = Modifier.height(bottomBarHeight),
                 color = MaterialTheme.colorScheme.surfaceContainer,
                 tonalElevation = 3.dp
             ) {
@@ -255,10 +257,17 @@ fun MobileLandscapeLayout(
             }
         }
     ) { innerPadding ->
+        val adjustedPadding = PaddingValues(
+            top = innerPadding.calculateTopPadding(),
+            start = innerPadding.calculateStartPadding(LayoutDirection.Ltr),
+            end = innerPadding.calculateEndPadding(LayoutDirection.Ltr),
+            bottom = 25.dp
+        )
+
         NavHost(
             navController = navController,
             startDestination = Routes.HOME,
-            modifier = Modifier.padding(innerPadding)
+            modifier = Modifier.padding(adjustedPadding)
         ) {
             composable(Routes.HOME) {
                 HomeScreen(
