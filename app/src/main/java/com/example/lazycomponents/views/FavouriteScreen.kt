@@ -41,14 +41,16 @@ fun FavoritesScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(screenPadding)
+            .padding(screenPadding),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "⭐ Mis Favoritos",
+            text = "Canciones favoritas",
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
             fontSize = getAdaptativeFontSize(getScreenSize(), 24).sp,
-            modifier = Modifier.padding(bottom = screenPadding)
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.padding(bottom = screenPadding / 2)
         )
 
         OutlinedTextField(
