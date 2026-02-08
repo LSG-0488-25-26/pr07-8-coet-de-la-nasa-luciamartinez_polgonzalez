@@ -5,7 +5,6 @@ import android.media.MediaPlayer
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -32,7 +31,6 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.lazycomponents.model.ItunesResult
 import com.example.lazycomponents.utils.ScreenOrientation
-import com.example.lazycomponents.utils.ScreenSize
 import com.example.lazycomponents.utils.getAdaptativeFontSize
 import com.example.lazycomponents.utils.getAdaptativePadding
 import com.example.lazycomponents.utils.getScreenInfo
@@ -46,12 +44,12 @@ fun HomeScreen(
 ) {
     val lyrics by viewModel.lyrics.observeAsState("")
     val topSongs by viewModel.topSongs.observeAsState(emptyList())
-    val isSearching = !lyrics.startsWith("Busca") && !lyrics.startsWith("Error")
     val coverUrl by viewModel.coverUrl.observeAsState(null)
     val audioUrl by viewModel.audioUrl.observeAsState(null)
     val isLoading by viewModel.isLoading.observeAsState(false)
     val isFavorite by viewModel.isFavorite.observeAsState(false)
-    val showPlayer = !lyrics.startsWith("Busca") && !lyrics.startsWith("Error") && !lyrics.startsWith("No se encontró")
+    val showPlayer =
+        !lyrics.startsWith("Busca") && !lyrics.startsWith("Error") && !lyrics.startsWith("No se encontró")
 
     var artist by remember { mutableStateOf("") }
     var title by remember { mutableStateOf("") }
@@ -59,53 +57,162 @@ fun HomeScreen(
 
     val screenInfo = getScreenInfo()
     val isLandscape = screenInfo.orientation == ScreenOrientation.LANDSCAPE
-    val screenSize = getScreenSize();
 
-    val shouldUseHorizontalLayout = isLandscape && (screenSize == ScreenSize.LARGE || screenInfo.screenWidth > 700.dp)
+    if (isLandscape && !showPlayer) {
+        // Horizontal
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(screenPadding),
+            horizontalArrangement = Arrangement.spacedBy(screenPadding)
+        ) {
+            // Buscar 40%
+            Column(
+                modifier = Modifier.weight(0.4f),
+                verticalArrangement = Arrangement.spacedBy(screenPadding / 3)
+            ) {
+                Text(
+                    text = "Buscar",
+                    fontSize = getAdaptativeFontSize(getScreenSize(), 22).sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.padding(bottom = screenPadding / 4)
+                )
 
-    if (shouldUseHorizontalLayout) {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(screenPadding / 4)
+                ) {
+                    OutlinedTextField(
+                        value = artist,
+                        onValueChange = { artist = it },
+                        label = { Text("Artista") },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true
+                    )
+
+                    Spacer(modifier = Modifier.height(screenPadding / 2))
+
+                    OutlinedTextField(
+                        value = title,
+                        onValueChange = { title = it },
+                        label = { Text("Canción") },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true
+                    )
+
+                    Spacer(modifier = Modifier.height(screenPadding))
+
+                    // Botones
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(screenPadding / 2)
+                    ) {
+                        Button(
+                            onClick = { viewModel.searchLyrics(artist, title) },
+                            enabled = !isLoading && artist.isNotBlank() && title.isNotBlank(),
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            if (isLoading) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(16.dp),
+                                    color = Color.White,
+                                    strokeWidth = 2.dp
+                                )
+                            } else {
+                                Text("Buscar")
+                            }
+                        }
+
+                        Button(
+                            onClick = { viewModel.toggleFavorite() },
+                            enabled = !isLoading && lyrics.isNotEmpty() && !lyrics.startsWith("Busca"),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = if (isFavorite) Color(0xFFE91E63) else MaterialTheme.colorScheme.secondary
+                            )
+                        ) {
+                            Icon(
+                                imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                                contentDescription = "Favorito",
+                                tint = Color.White
+                            )
+                        }
+                    }
+                }
+            }
+            // Top 10 60%
+            Column(
+                modifier = Modifier.weight(0.6f)
+            ) {
+                Text(
+                    text = "Top 10 hits en iTunes",
+                    fontSize = getAdaptativeFontSize(getScreenSize(), 22).sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.padding(bottom = screenPadding / 4)
+                )
+
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(screenPadding / 2)
+                ) {
+                    items(topSongs) { song ->
+                        TopSongItem(
+                            song = song,
+                            onClick = {
+                                artist = song.artistName ?: ""
+                                title = song.trackName ?: ""
+                                viewModel.searchLyrics(artist, title)
+                            },
+                            isCompact = false
+                        )
+                    }
+                }
+            }
+        }
+    } else if (isLandscape && showPlayer) {
         // Horizontal
         Row(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(screenPadding)
         ) {
-            // Buscar 40%
+            // Columna izquierda: Búsqueda y Top 10
             Column(
                 modifier = Modifier
-                    .weight(0.4f)
-                    .fillMaxHeight()
+                    .weight(1f)
+                    .fillMaxHeight(),
+                verticalArrangement = Arrangement.spacedBy(screenPadding)
             ) {
-                // Horizontal compacto
                 Text(
-                    text = "Karaoke",
-                    fontSize = getAdaptativeFontSize(screenSize, 20).sp,
+                    text = "Karaoke App",
+                    fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.padding(bottom = screenPadding / 2)
                 )
 
-                // Buscar
-                OutlinedTextField(
-                    value = artist,
-                    onValueChange = { artist = it },
-                    label = { Text("Artista") },
+                Column(
                     modifier = Modifier.fillMaxWidth(),
-                    singleLine = true
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                OutlinedTextField(
-                    value = title,
-                    onValueChange = { title = it },
-                    label = { Text("Canción") },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true
-                )
+                    verticalArrangement = Arrangement.spacedBy(screenPadding / 2)
+                ) {
+                    OutlinedTextField(
+                        value = artist,
+                        onValueChange = { artist = it },
+                        label = { Text("Artista") },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true
+                    )
 
-                // Botones
+                    OutlinedTextField(
+                        value = title,
+                        onValueChange = { title = it },
+                        label = { Text("Canción") },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true
+                    )
+                }
+
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(screenPadding / 2)
                 ) {
                     Button(
                         onClick = { viewModel.searchLyrics(artist, title) },
@@ -114,12 +221,12 @@ fun HomeScreen(
                     ) {
                         if (isLoading) {
                             CircularProgressIndicator(
-                                modifier = Modifier.size(14.dp),
+                                modifier = Modifier.size(16.dp),
                                 color = Color.White,
                                 strokeWidth = 2.dp
                             )
                         } else {
-                            Text("Buscar", fontSize = 12.sp)
+                            Text("Buscar", fontSize = 14.sp)
                         }
                     }
 
@@ -129,103 +236,114 @@ fun HomeScreen(
                         colors = ButtonDefaults.buttonColors(
                             containerColor = if (isFavorite) Color(0xFFE91E63) else MaterialTheme.colorScheme.secondary
                         ),
-                        modifier = Modifier.size(48.dp)
+                        modifier = Modifier
                     ) {
                         Icon(
                             imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
                             contentDescription = "Favorito",
                             tint = Color.White,
-                            modifier = Modifier.size(18.dp)
+                            modifier = Modifier.size(20.dp)
                         )
                     }
                 }
 
-                // Top 10
-                if (!showPlayer) {
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(
-                        text = "Top 10",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 14.sp
-                    )
+                Spacer(modifier = Modifier.height(screenPadding))
+                Divider()
+                Spacer(modifier = Modifier.height(screenPadding / 2))
 
-                    LazyColumn(
-                        modifier = Modifier.weight(1f),
-                        verticalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        items(topSongs.take(5)) { song ->
-                            TopSongItemCompact(song) {
+                // Top 10
+                Text(
+                    text = "Top 10 Hits",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = getAdaptativeFontSize(getScreenSize(), 18).sp,
+                    modifier = Modifier.padding(bottom = screenPadding / 2)
+                )
+
+                LazyColumn(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(screenPadding / 4)
+                ) {
+                    items(topSongs) { song ->
+                        TopSongItem(
+                            song = song,
+                            onClick = {
                                 artist = song.artistName ?: ""
                                 title = song.trackName ?: ""
                                 viewModel.searchLyrics(artist, title)
-                            }
-                        }
+                            },
+                            isCompact = true
+                        )
                     }
                 }
             }
 
+            // Separador vertical
+            Spacer(modifier = Modifier.width(screenPadding))
+            Divider(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .width(1.dp)
+            )
+            Spacer(modifier = Modifier.width(screenPadding))
+
             // Columna derecha: Resultados
-            if (showPlayer) {
-                Spacer(modifier = Modifier.width(16.dp))
-                Column(
-                    modifier = Modifier
-                        .weight(0.6f)
-                        .fillMaxHeight()
+            Column(
+                modifier = Modifier
+                    .weight(1.5f)
+                    .fillMaxHeight(),
+                verticalArrangement = Arrangement.spacedBy(screenPadding)
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(screenPadding),
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    // Info.
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(screenPadding),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        if (coverUrl != null) {
-                            AsyncImage(
-                                model = coverUrl,
-                                contentDescription = null,
-                                modifier = Modifier.size(120.dp)
-                            )
-                        }
-
-                        Column(
-                            modifier = Modifier.weight(1f),
-                            verticalArrangement = Arrangement.spacedBy(screenPadding / 2)
-                        ) {
-                            Text(
-                                text = title.ifBlank { "Canción" },
-                                style = MaterialTheme.typography.titleLarge,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = getAdaptativeFontSize(getScreenSize(), 20).sp
-                            )
-                            Text(
-                                text = artist.ifBlank { "Artista" },
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = MaterialTheme.colorScheme.secondary,
-                                fontSize = getAdaptativeFontSize(getScreenSize(), 16).sp
-                            )
-
-                            if (audioUrl != null) {
-                                SimpleAudioPlayer(url = audioUrl!!)
-                            }
-                        }
-                    }
-
-                    Divider()
-
-                    // Letra con scroll
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .verticalScroll(scrollState)
-                    ) {
-                        Text(
-                            text = lyrics,
-                            textAlign = TextAlign.Center,
-                            fontSize = getAdaptativeFontSize(getScreenSize(), 16).sp,
-                            lineHeight = (getAdaptativeFontSize(getScreenSize(), 16) * 1.5).sp,
-                            modifier = Modifier.fillMaxWidth()
+                    if (coverUrl != null) {
+                        AsyncImage(
+                            model = coverUrl,
+                            contentDescription = null,
+                            modifier = Modifier.size(120.dp)
                         )
                     }
+
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        verticalArrangement = Arrangement.spacedBy(screenPadding / 2)
+                    ) {
+                        Text(
+                            text = title.ifBlank { "Canción" },
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = getAdaptativeFontSize(getScreenSize(), 20).sp
+                        )
+                        Text(
+                            text = artist.ifBlank { "Artista" },
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.secondary,
+                            fontSize = getAdaptativeFontSize(getScreenSize(), 16).sp
+                        )
+
+                        if (audioUrl != null) {
+                            SimpleAudioPlayer(url = audioUrl!!)
+                        }
+                    }
+                }
+
+                Divider()
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(scrollState)
+                ) {
+                    Text(
+                        text = lyrics,
+                        textAlign = TextAlign.Center,
+                        fontSize = getAdaptativeFontSize(getScreenSize(), 16).sp,
+                        lineHeight = (getAdaptativeFontSize(getScreenSize(), 16) * 1.5).sp,
+                        modifier = Modifier.fillMaxWidth()
+                    )
                 }
             }
         }
@@ -246,7 +364,6 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(screenPadding))
 
-            // Buscar
             OutlinedTextField(
                 value = artist,
                 onValueChange = { artist = it },
@@ -265,7 +382,6 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(screenPadding))
 
-            // Botones
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -307,7 +423,6 @@ fun HomeScreen(
             Spacer(modifier = Modifier.height(screenPadding))
 
             if (showPlayer) {
-                // Player y letra en vertical
                 if (coverUrl != null || audioUrl != null) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -336,7 +451,6 @@ fun HomeScreen(
                     Spacer(modifier = Modifier.height(screenPadding))
                 }
 
-                // Letra
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -351,7 +465,6 @@ fun HomeScreen(
                     )
                 }
             } else {
-                // Top 10 en vertical
                 Text(
                     text = "Top 10 hits en iTunes",
                     style = MaterialTheme.typography.titleLarge,
@@ -365,11 +478,15 @@ fun HomeScreen(
                     verticalArrangement = Arrangement.spacedBy(screenPadding / 2)
                 ) {
                     items(topSongs) { song ->
-                        TopSongItem(song) {
-                            artist = song.artistName ?: ""
-                            title = song.trackName ?: ""
-                            viewModel.searchLyrics(artist, title)
-                        }
+                        TopSongItem(
+                            song = song,
+                            onClick = {
+                                artist = song.artistName ?: ""
+                                title = song.trackName ?: ""
+                                viewModel.searchLyrics(artist, title)
+                            },
+                            isCompact = false
+                        )
                     }
                 }
             }
@@ -377,33 +494,44 @@ fun HomeScreen(
     }
 }
 
-// Horizontal + compacto
 @Composable
-fun TopSongItemCompact(song: ItunesResult, onClick: () -> Unit) {
+fun TopSongItem(
+    song: ItunesResult,
+    onClick: () -> Unit,
+    isCompact: Boolean = false
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick() },
+            .clickable { onClick() }
+            .padding(vertical = if (!isCompact) 4.dp else 0.dp),
         elevation = CardDefaults.cardElevation(2.dp)
     ) {
         Row(
-            modifier = Modifier.padding(8.dp),
+            modifier = Modifier.padding(
+                horizontal = if (isCompact) 8.dp else 12.dp,
+                vertical = if (isCompact) 8.dp else 12.dp
+            ),
             verticalAlignment = Alignment.CenterVertically
         ) {
             AsyncImage(
                 model = song.artworkUrl,
                 contentDescription = null,
-                modifier = Modifier.size(40.dp)
+                modifier = Modifier.size(if (isCompact) 40.dp else 50.dp)
             )
-            Spacer(modifier = Modifier.width(12.dp))
+
+            Spacer(modifier = Modifier.width(if (isCompact) 12.dp else 16.dp))
+
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = song.trackName ?: "Desconocido",
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.Medium,
-                    maxLines = 1,
+                    style = if (isCompact) MaterialTheme.typography.bodyMedium
+                    else MaterialTheme.typography.titleMedium,
+                    fontWeight = if (isCompact) FontWeight.Medium else FontWeight.Bold,
+                    maxLines = 1,  // Siempre 1 línea para ambos
                     overflow = TextOverflow.Ellipsis
                 )
+
                 Text(
                     text = song.artistName ?: "Desconocido",
                     style = MaterialTheme.typography.bodySmall,
@@ -438,18 +566,24 @@ fun SimpleAudioPlayer(url: String) {
             try {
                 if (mediaPlayer.isPlaying) mediaPlayer.stop()
                 mediaPlayer.release()
-            } catch (e: Exception) { e.printStackTrace() }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
     }
 
     LaunchedEffect(url) {
         try {
-            if (isPlaying) { mediaPlayer.stop(); isPlaying = false }
+            if (isPlaying) {
+                mediaPlayer.stop(); isPlaying = false
+            }
             mediaPlayer.reset()
             mediaPlayer.setDataSource(url)
             mediaPlayer.prepareAsync()
             mediaPlayer.setOnCompletionListener { isPlaying = false }
-        } catch (e: Exception) { e.printStackTrace() }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     IconButton(
@@ -461,7 +595,9 @@ fun SimpleAudioPlayer(url: String) {
                     mediaPlayer.start()
                 }
                 isPlaying = !isPlaying
-            } catch (e: Exception) { e.printStackTrace() }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         },
         modifier = Modifier
             .size(50.dp)
@@ -472,38 +608,5 @@ fun SimpleAudioPlayer(url: String) {
             contentDescription = "Play",
             tint = Color.White
         )
-    }
-}
-
-@Composable
-fun TopSongItem(song: ItunesResult, onClick: () -> Unit) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp)
-            .clickable { onClick() },
-        elevation = CardDefaults.cardElevation(2.dp)
-    ) {
-        Row(
-            modifier = Modifier.padding(8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            AsyncImage(
-                model = song.artworkUrl,
-                contentDescription = null,
-                modifier = Modifier.size(50.dp)
-            )
-            Spacer(modifier = Modifier.width(16.dp))
-            Column {
-                Text(
-                    text = song.trackName ?: "Desconocido",
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    text = song.artistName ?: "Desconocido",
-                    style = MaterialTheme.typography.bodySmall
-                )
-            }
-        }
     }
 }
